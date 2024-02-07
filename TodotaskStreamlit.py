@@ -14,22 +14,38 @@ class LinkedList:
 
     def add_task(self, task):
         new_node = Node(task)
-        new_node.next = self.head
-        self.head = new_node
+        if self.head is None:
+            self.head = new_node
+            return
 
-    def remove_task(self, task):
-        current = self.head
-        previous = None
+        current_node = self.head
+        while current_node.next:
+            current_node = current_node.next
 
-        while current is not None:
-            if current.data == task:
-                if previous is not None:
-                    previous.next = current.next
-                else:
-                    self.head = current.next
-                break
-            previous = current
-            current = current.next
+        current_node.next = new_node
+
+    def remove_first_task(self):
+        if self.head == None:
+            return
+        self.head = self.head.next
+
+    def remove_task(self, index):
+        n = int(index) - 1
+        if self.head == None:
+            return
+        current_node = self.head
+        position = 0
+        if position == n:
+            self.remove_first_task()
+        else:
+            while current_node != None and position + 1 != n:
+                position = position + 1
+                current_node = current_node.next
+            if current_node != None:
+                current_node.next = current_node.next.next
+            else:
+                print("Insert not present")
+
 
     def display_tasks(self):
         tasks = []
@@ -46,27 +62,26 @@ def main():
     st.title("To-Do List App with Linked List")
 
     # Initialize a linked list
-    tasks_list = LinkedList()
+    if 'tasks_list' not in st.session_state:
+        st.session_state.tasks_list = LinkedList()
 
     # Sidebar for adding tasks
     task_input = st.sidebar.text_input("Add Task:")
     if st.sidebar.button("Add"):
         if task_input:
-            tasks_list.add_task(task_input)
+            st.session_state.tasks_list.add_task(task_input)
 
     # Sidebar for removing tasks
-    task_to_remove = st.sidebar.text_input("Remove Task:")
+    task_to_remove = st.sidebar.text_input("Remove Task (Enter the Number of Task's order):")
     if st.sidebar.button("Remove"):
         if task_to_remove:
-            tasks_list.remove_task(task_to_remove)
+            st.session_state.tasks_list.remove_task(task_to_remove)
 
-    # Main content to display tasks
+    # Sidebar option to view tasks
+    tasks = st.session_state.tasks_list.display_tasks()
     st.write("## Your To-Do List:")
-    tasks = tasks_list.display_tasks()
-
     if not tasks:
         st.write("No tasks yet. Add some tasks using the sidebar!")
-
     for i, task in enumerate(tasks, start=1):
         st.write(f"{i}. {task}")
 
